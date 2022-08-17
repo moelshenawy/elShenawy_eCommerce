@@ -1,13 +1,54 @@
-import React, { useContext, useState, useEffect, createContext } from "react";
+import React, {
+  useContext,
+  useState,
+  useEffect,
+  createContext,
+  useReducer,
+} from "react";
 import { toast } from "react-hot-toast";
+import { AiOutlineConsoleSql } from "react-icons/ai";
 
 let StateContext = createContext();
 export const StateContextProvider = ({ children }) => {
   const [showCart, setShowCart] = useState(false);
-  const [cartItems, setCartItems] = useState([]);
-  const [totalPrice, setTotalPrice] = useState(0);
-  const [totalQuantities, setTotalQuantities] = useState(0);
+
+  const [cartItems, setCartItems] = useState(() =>
+    getLocalStorage("items", [])
+  );
+  const [totalPrice, setTotalPrice] = useState(() =>
+    getLocalStorage("totalPrice", 0)
+  );
+
+  const [totalQuantities, setTotalQuantities] = useState(() =>
+    getLocalStorage("totalQuantities", 0)
+  );
+
   const [qty, setQty] = useState(1);
+
+  useEffect(() => {
+    setLocalStorage("items", cartItems);
+    setLocalStorage("totalPrice", totalPrice);
+    setLocalStorage("totalQuantities", totalQuantities);
+  }, [cartItems, totalPrice, totalQuantities]);
+
+  function setLocalStorage(key, value) {
+    try {
+      localStorage.setItem(key, JSON.stringify(value));
+    } catch (e) {
+      // catch possible errors:
+      console.log(e.error);
+    }
+  }
+
+  function getLocalStorage(key) {
+    try {
+      const data = window.localStorage.getItem(key);
+      return data ? JSON.parse(data) : [];
+    } catch (e) {
+      // if error, return initial value
+      return [];
+    }
+  }
 
   let foundProduct, index;
 
